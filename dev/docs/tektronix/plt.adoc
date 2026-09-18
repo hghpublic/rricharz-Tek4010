@@ -1,0 +1,79 @@
+= plt
+
+== plt files
+
+Prompt: tektronix graphics terminal plt binary format description
+
+The Tektronix PLT (.plt or .tek) file format used by historical Tektronix 4010 / 4014 vector graphics terminals and the link:http://bitsavers.trailing-edge.com/pdf/tektronix/plot10/062-1474-00_PLOT-10_Terminal_Control_System_4010_Users_Manual_Apr1972.pdf[PLOT 10 Terminal Control System 4010 Users Manual] is not a standard "binary data array." Instead, it is a byte stream of raw vector terminal commands, escape sequences, and tightly encoded bit-packed coordinates. [1, 2, 3] 
+
+Because serial data lines in the 1970s and 1980s were highly prone to dropping control characters, link:https://www.tek.com/de[Tektronix] designed a specialized serialization scheme. It fits 10-bit or 12-bit vector coordinate points into standard 7-bit ASCII/binary characters while reserving specific ranges for system modes. [4] 
+
+=== 1. Terminal Operating Modes
+
+A .plt file works like a state machine. The file alters the terminal's state by sending specific control bytes: [3] 
+
+
+* Alpha Mode (Alphanumeric text): The default state. Bytes are rendered directly as text characters on the screen. It is entered by sending the US (Unit Separator, 0x1F) character. [2] 
+* Vector Plot Mode (Drawing lines): Entered by sending the GS (Group Separator, 0x1D) character. Once in this mode, consecutive blocks of coordinate bytes are interpreted as Move and Draw vector pairs.
+* Point Plot Mode (Drawing single dots): Entered by sending the FS (File Separator, 0x1C) character. [4] 
+
+
+
+=== 2. The Coordinate Encoding Scheme (10-bit / 12-bit)
+The Tektronix 4010 screen has a coordinate grid of 1024 × 1024 addressable points (0 to 1023). To transmit a single 10-bit integer using transmission-safe 7-bit characters (where the highest bit 7 is omitted or used for parity), Tektronix breaks each coordinate into 5-bit chunks and adds a 2-bit type identifier prefix to bits 6 and 5: [2, 4] 
+
+[cols="5*", options="header"]
+|===
+| Byte Type | Bit 6 | Bit 5 | Bits 4 to 0 (Data payload) | Value Range (Hex)
+
+| High Y | 0 | 1 | 5 bits of Highest Y | 0x20 to 0x3F
+| Low Y | 1 | 1 | 5 bits of Lowest Y | 0x60 to 0x7F
+| High X | 0 | 1 | 5 bits of Highest X | 0x20 to 0x3F
+| Low X | 1 | 0 | 5 bits of Lowest X | 0x40 to 0x5F
+|===
+
+=== The 4-Byte Vector Sequence
+
+To send an (X, Y) coordinate to the terminal, the data must be transmitted in a strict byte sequence:
+
+$\text{[High Y]} \rightarrow \text{[Low Y]} \rightarrow \text{[High X]} \rightarrow \text{[Low X]}$
+
+=== Compression Optimization
+
+To maximize transmission speeds, bytes that do not change from the previous coordinate can be omitted from the stream. The terminal interprets the incoming data based on the unique prefix bit patterns shown above.
+
+
+* Sending a Low X byte triggers the terminal to instantly execute the draw command using whatever values currently reside in its internal High Y, Low Y, and High X latches.
+
+
+
+=== 3. Move vs. Draw (Pen Up vs. Pen Down)
+
+The format handles "Pen Up" (moving without drawing) and "Pen Down" (drawing a line) implicitly based on how Vector Mode (GS, 0x1D) is initialized:
+
+. Move (Pen Up): The very first coordinate sequence sent immediately after a GS character does not draw a line. It acts as a Move command, jumping the electron gun to the starting coordinates.
+. Draw (Pen Down): Every subsequent 4-byte (or compressed) coordinate sequence sent after that initial point automatically draws a continuous line from the last position to the new one.
+
+
+=== 4. Tektronix 4014 Extensions (12-bit Enhanced Graphics)
+
+The later Tektronix 4014 terminal upgraded screen resolution to 4096 × 4096 points. To stay backward-compatible with 10-bit files, it introduced an optional 5th byte called the Extra Byte, inserted right before the Low X byte.
+
+The Extra Byte contains the lowest 2 bits for both X and Y. It uses the binary prefix bit pattern 011xxxx. If the terminal detects this byte, it switches to high-resolution 12-bit mode for that coordinate.
+
+=== 5. Common Control Sequences Found in .plt Files
+
+When inspecting a .plt file in a hex editor, look out for these structural markers: [1] 
+
+
+* ESC FF (0x1B 0x0C): Page Erase / Clear Screen. On physical storage-tube terminals, this caused the screen to flash brightly as it cleared.
+* GS (0x1D): Switch terminal into Vector Graph mode.
+* US (0x1F): Switch terminal back to Alphanumeric Mode to write text labels. [2, 4] 
+
+
+Are you trying to render and view a historical .plt file on modern hardware, or are you generating one from a data set? Let me know your objective so I can provide a parsing script or point you toward compatible software.
+
+[1] [https://retrocomputingforum.com](https://retrocomputingforum.com/t/seeking-info-about-dectek-graphics-for-a-spacewar-z80-game/1253) +
+[2] [https://bitsavers.trailing-edge.com](http://bitsavers.trailing-edge.com/pdf/tektronix/plot10/062-1474-00_PLOT-10_Terminal_Control_System_4010_Users_Manual_Apr1972.pdf) +
+[3] [https://netghost.narod.ru](https://netghost.narod.ru/gff/graphics/summary/plot10.htm) +
+[4] [https://vt100.net](https://vt100.net/docs/vt3xx-gp/chapter13.html)

@@ -1,0 +1,24 @@
+= cairo
+
+https://www.cairographics.org/
+
+https://gitlab.freedesktop.org/cairo/cairo
+
+----
+cmake_minimum_required(VERSION 3.10)
+project(CairoExample)
+
+# PkgConfig-Modul einbinden
+find_package(PkgConfig REQUIRED)
+
+# Nach cairo suchen
+pkg_check_modules(CAIRO REQUIRED cairo)
+
+# Include-Verzeichnisse und Bibliotheken hinzufügen
+include_directories(${CAIRO_INCLUDE_DIRS})
+link_directories(${CAIRO_LIBRARY_DIRS})
+
+add_executable(main main.c)
+target_link_libraries(main PRIVATE ${CAIRO_LIBRARIES})
+
+----

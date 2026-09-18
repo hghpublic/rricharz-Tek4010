@@ -1,0 +1,153 @@
+= xterm
+
+== xterm
+
+Xterm Control Sequences::
+
+https://www.xfree86.org/current/ctlseqs.html
+
+https://invisible-island.net/xterm/ctlseqs/ctlseqs.html#h2-Tektronix-4014-Mode
+
+== Stash
+
+Hiding Cursor in Xterm Tektronix 4014 Mode
+
+https://stackoverflow.com/questions/35242335/hiding-cursor-in-xterm-tektronix-4014-mode
+
+
+== Gnuplot
+
+To pipe vector graphics directly into an XTerm Tektronix window using Gnuplot, you need to configure Gnuplot to use its dedicated tek40xx or tek410x terminal drivers and tell it to output directly to standard output.
+
+When you run Gnuplot from within an XTerm Tektronix sub-window (or pipe its output into one), XTerm automatically captures the incoming Tektronix escape codes and draws the vectors.
+
+Here is how to set up and execute the pipeline.
+
+## Method 1: The Interactive Shell Pipeline (Recommended)
+The cleanest way to do this is to open a dedicated XTerm Tektronix window and run an interactive Gnuplot session inside it.
+
+   1. Open XTerm directly in Tektronix mode from your standard desktop terminal:
+   
+   xterm -t
+   
+   (This opens a window with a distinct dark background designed for vector graphics instead of standard text).
+   2. Launch Gnuplot inside that new XTerm window:
+   
+   gnuplot
+   
+   3. Configure the terminal and plot your data inside Gnuplot:
+   
+   set terminal tek40xx
+   plot sin(x)
+   
+   The moment you hit enter on the plot command, Gnuplot will stream the 10-bit Tektronix coordinate bytes directly to the window, and XTerm will instantly render the vector plot.
+
+
+## Method 2: Pure CLI Pipe (Scripted / Automation)
+
+If you want to generate a plot from a script or a data file and pipe it directly into a fresh XTerm window without manually typing commands, use this command:
+
+gnuplot -e "set terminal tek40xx; plot sin(x)" | xterm -t -e "cat"
+
+## How it works:
+
+* gnuplot -e "...": Executes the inline Gnuplot commands. Because no set output is defined, Gnuplot defaults to sending the raw Tektronix byte stream (GS, US, High/Low coordinate chunks) directly to stdout.
+* |: Pipes that raw stream into the next command.
+* xterm -t -e "cat": Opens XTerm directly in Tektronix graphics mode (-t) and executes the command cat (-e "cat"). cat reads the piped stream from standard input and dumps it straight into the XTerm display buffer, forcing XTerm to parse and draw the vectors.
+
+
+## Gnuplot Terminal Driver Options
+
+Depending on the level of detail or color depth you want, Gnuplot offers a few variations of the Tektronix driver:
+
+* set terminal tek40xx: The standard choice. Emulates a monochrome Tektronix 4010/4014 terminal with a standard 1024x1024 vector grid.
+* set terminal tek410x: If your emulator supports it, this enables the Tektronix 4100 series color raster capabilities, allowing you to use color mapping (set pm3d, multiple line colors) instead of strictly monochrome plots.
+* set terminal kc_tek40xx / km_tek40xx: Specialized variants optimized for specific MS-Kermit or MS-DOS emulator configurations.
+
+Are you plotting mathematical functions or reading data from an external log file? If you share the format of your data file, I can help you write the exact Gnuplot code to handle the labels and axes cleanly.
+
+== Tektronix XTerm Integration
+
+
+To switch XTerm into Tektronix mode and display a .plt file, you can either launch XTerm directly into Tektronix mode or switch an active text window dynamically using escape sequences.
+Because a .plt file contains the exact raw byte stream that Tektronix hardware expects, you can simply use cat to dump the file straight into the terminal once it is in the correct graphics state.
+Here are the three best ways to do this:
+
+## Method 1: The Single-Command Launch (Fastest)
+
+If you are sitting in your standard desktop terminal, you can spin up a dedicated XTerm graphics window, stream the file, and keep the window open using a single line of bash:
+
+[source, bash]
+----
+xterm -t -e "cat your_file.plt; read -p 'Press Enter to close...'"
+----
+
+* -t: Forces XTerm to start up directly in its Tektronix 4014 emulation mode (opening a secondary window with a dark, vector-optimized background).
+* -e: Executes the following string inside that window. cat streams the binary coordinate blocks to the terminal buffer, and read prevents the window from closing instantly when the data transfer finishes.
+
+
+## Method 2: Dynamic Switching (From inside an existing XTerm)
+If you are already inside a standard XTerm text window and want to switch to the Tektronix layout dynamically, you can echo the hardware switch string directly to your terminal:
+
+. Switch to Tektronix mode by printing the native VT100-to-Tektronix escape sequence:
+   
+[source, bash]
+----
+printf "\033[?38h"
+----
+    (A secondary, large blank graphics window will pop open on your desktop).
+
+. Send the graphics file to the screen:
+   
+[source, bash]
+----
+cat your_file.plt
+----   
+
+. Switch back to normal text mode when you are finished by sending the Tektronix escape code from the graphics window:
+   
+[source, bash]
+----
+printf "\033\014"
+----
+   
+
+## Method 3: Using the Graphical UI
+If you prefer not to mess with escape codes, XTerm has a hidden built-in menu system to toggle modes manually:
+
+. Open a standard XTerm window.
+. Hold down the Ctrl key and Right-Click anywhere inside the XTerm text window.
+. A menu will appear. Select Switch to Tektronix Mode.
+. In the new graphics window that opens, your command prompt is still active. Simply type:
+
+[source, bash]
+----
+cat your_file.plt
+----
+   
+## Troubleshooting: Screen Clears & Distortions
+
+* The image looks corrupted or overlayed: If you run cat multiple times, vectors will draw right on top of each other because historical storage tubes didn't auto-refresh. To clear the screen manually before drawing, send the Page Erase sequence:
+
+[source, bash]
+----
+printf "\033\014" && cat your_file.plt
+----
+
+* Text is garbled after viewing: If your prompt looks strange after running the file, it means the .plt file left the terminal state machine stuck in Vector Mode (GS). Force it back to Alpha text mode by typing:
+
+[source, bash]
+----
+printf "\037"
+----
+
+
+Are you seeing blank screens or stray lines stretching across the window when you run this? If the image looks skewed, let me know—we may need to adjust your XTerm font size parameters or verify if the file is a 10-bit or 12-bit format.
+
+== Stash
+
+
+https://xorg.freedesktop.org/archive/X11R6.8.0/doc/xterm.1.html
+
+tekInhibit (class TekInhibit)::
+Specifies whether or not the escape sequence to enter Tektronix mode should be ignored. The default is ``false.''

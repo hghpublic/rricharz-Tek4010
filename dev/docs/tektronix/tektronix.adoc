@@ -1,0 +1,33 @@
+= Tektronix
+
+https://en.wikipedia.org/wiki/Tektronix_4010
+
+== Stash
+
+Tektronix 4015 Graphic-Terminal
+
+https://www.f05.uni-stuttgart.de/informatik/fachbereich/computermuseum/die-sammlung/tektronix/
+
+Products In Movies and Shows
+
+https://vintagetek.org/tektronix-in-movies-shows/
+
+https://w140.com/tekwiki/wiki/4010
+
+== YouTube
+
+11.1.2024 - Tektronix 4015 und Computerkunst
+
+https://www.youtube.com/watch?v=vk9nCue3nQ4&list=PLtpOUadaBh30mkpmW8aDaZRqV4XoMadZF&index=20
+
+11.4.2024 - Mondlande-Spiele
+
+https://www.youtube.com/watch?v=XC-VNCSqenM
+
+Stream vom 9.9.2021 - Thema: Computerspiele
+
+https://www.youtube.com/watch?v=8yOCvWVKbrk&list=PLtpOUadaBh30mkpmW8aDaZRqV4XoMadZF&index=47
+
+== GitHub
+
+https://github.com/bennetyee/TekGraphics
