@@ -1,0 +1,8 @@
+= help
+
+generate help file with `make`::
+Create file `src/help.h`.
++
+----
+make
+----

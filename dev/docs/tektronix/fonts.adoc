@@ -1,0 +1,134 @@
+= Fonts
+
+== Fonts
+
+The term Tektronix DISSPLA Font bridges two pioneering technologies of early computer graphics: Tektronix vector terminals (such as the 4010 and 4014) and DISSPLA (Display Integrated Software System and Plotting Language), a powerful 1960s/70s mainframe graphics library.
+
+Because these early systems were vector-based (using storage tubes where electron beams drew physical lines rather than pixels), text could not use modern bitmap or raster fonts. Instead, they relied on stroke fonts (vector fonts).
+
+=== Core Characteristics
+
+* DISSPLA Vector Fonts: DISSPLA came with its own extensive library of stroke fonts, including styles like Simplex, Complex, Duplex, Cartographic, and Gothic. Software written in FORTRAN would call these fonts to render mathematically precise text on Tektronix screens or pen plotters.
+* The Hershey Connection: DISSPLA fonts are functionally identical in concept to the famous Hershey Fonts (created by Dr. A.V. Hershey in 1967). They consist of coordinate pairs that instruct the terminal's electron beam exactly how to trace out each character using single lines.
+
+=== Modern Alternatives
+
+If you are trying to recreate this specific retro-scientific look today, the original DISSPLA fonts are difficult to source as usable files because they were proprietary mainframe code. However, you can achieve the exact same aesthetic using these modern equivalents:
+
+* Modern Hershey Fonts: You can find the classic Hershey stroke fonts converted into standard TrueType (.ttf) or OpenType (.otf) formats online (often used in modern CNC plotting and engraving).
+* Single-Line / Plotter Fonts: Search for "CNC fonts" or "engraving fonts" (such as ISO 3098 or DIN 17 replicas). These maintain the single-stroke geometry without closing the loops into filled shapes.
+
+Are you looking for a downloadable modern font file that replicates this vintage look, or are you trying to render text in a specific legacy programming environment?
+
+== DISSPLA Fonts
+
+
+The official source code for DISSPLA graphics and font software is proprietary commercial software and is not publicly available.
+
+DISSPLA (Display Integrated Software System and Plotting LAnguage) was not originally created by Tektronix; it was developed in the late 1960s by ISSCO (Integrated Software Systems Corporation). The software included native device drivers explicitly written to output vector graphics onto Tektronix 4010 and 4014 terminals. The ownership of DISSPLA transferred to Computer Associates (CA Technologies) (now a subsidiary of Broadcom), which maintains the intellectual property, classifying it as closed-source legacy software. [1, 2, 3, 4] 
+
+## 🔎 Where to Find Closely Related Materials
+
+If you are looking to work with vintage vector graphics or need to handle legacy DISSPLA applications, you can explore several public and historical resources:
+
+
+* Open-Source Replacements (DISLIN): If you have legacy code written for DISSPLA, the [DISLIN Scientific Plotting Package](https://people.math.sc.edu/Burkardt/f77_src/dislin/dislin.html) is a modern, widely accepted alternative. It includes specific wrapper functions designed to mimic or replace old DISSPLA routines. [5, 6] 
+* Vintage Graphics Collections: Enthusiasts on the [Vintage Computer Federation Forums](https://forum.vcfed.org/index.php?threads/tektronix-4051-4052-and-4054-computers-emulating-tektronix-4010-and-4014-terminals.78357/) share structural program archives, macros, and emulators that interface with Tektronix hardware plotting protocols. [7, 8] 
+* Open Vector Fonts (Hershey Fonts): If your goal is specifically to find the source data for old mainframe-era vector fonts (similar to DISSPLA's software-defined characters), the Hershey Fonts are public-domain vector fonts from the same era. Their stroke-based coordinate structures are openly accessible on GitHub.
+* Historical Documentation: You can read system-level technical manuals detailing DISSPLA's font file integration and plotting parameters on the [U.S. Department of Energy OSTI Portal](https://www.osti.gov/servlets/purl/6138705). [9] 
+
+
+To help point you in the right direction, please let me know:
+
+
+* Are you trying to compile legacy Fortran code that relies on DISSPLA?
+* Are you looking for the exact visual style of the DISSPLA vector fonts for a modern project?
+* Do you need an emulator to parse Tektronix plotter command sequences?
+
+
+
+[1] [https://tug.org](https://tug.org/TUGboat/tb03-1/tb05site.pdf) +
+[2] [https://www.gaeinc.com](http://www.gaeinc.com/disspla.html) +
+[3] [https://www.worldradiohistory.com](https://www.worldradiohistory.com/Archive-Byte/80s/Byte-1985-08.pdf) +
+[4] [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Category:Proprietary_software) +
+[5] [https://fortran-lang.discourse.group](https://fortran-lang.discourse.group/t/tools-for-plotting-from-fortran/2917) +
+[6] [https://people.math.sc.edu](https://people.math.sc.edu/Burkardt/f77_src/dislin/dislin.html) +
+[7] [https://github.com](https://github.com/mmcgraw74/Tektronix-4051-4052-4054-Program-Files) +
+[8] [https://forum.vcfed.org](https://forum.vcfed.org/index.php?threads/tektronix-4051-4052-and-4054-computers-emulating-tektronix-4010-and-4014-terminals.78357/) +
+[9] [https://www.osti.gov](https://www.osti.gov/servlets/purl/6138705)
+
+
+== DISLIN
+
+https://people.math.sc.edu/Burkardt/f77_src/dislin/dislin.html
+
+https://www.dislin.de/
+
+== Hershey Fonts
+
+https://github.com/rougier/freetype-hershey
+
+To display Hershey vector fonts on a Tektronix terminal (or a modern emulator like xterm -t), the most reliable method is to use the GNU Plotutils suite. [1] 
+
+Because native Tektronix hardware only includes a single, fixed bitmap font built into its firmware, you cannot "install" or upload fonts to the terminal. Instead, you must use a host-side software package to translate text into standard Tektronix vector plotting commands (vector strokes) before sending them to the terminal. [2, 3, 4] 
+
+=== 1. Install GNU Plotutils
+
+On modern Linux/Unix systems, install the plotutils package, which contains native support for 16 Hershey fonts across various terminal drivers, including the Tektronix 4014. [2, 5] 
+
+
+* Ubuntu/Debian: sudo apt-get install plotutils
+* macOS (via Homebrew): brew install plotutils
+
+
+=== 2. Method A: Displaying Font Charts directly via plotfont
+
+The suite includes a dedicated utility called plotfont to print out full character maps for any available font. You can pipe its output directly to your terminal using the -T tek (Tektronix) driver: [5, 6, 7] 
+
+----
+plotfont -T tek HersheySans > /dev/tty
+----
+
+(Replace /dev/tty with your terminal's specific serial or pseudo-terminal line if you are transmitting over a specific port).
+
+=== 3. Method B: Plotting Custom Text via graph or plot
+
+To render custom strings, charts, or layouts containing Hershey text, use the graph command. By default, when using the -T tek output device, "HersheySerif" is the fallback default font. [1, 7] 
+
+To explicitly choose a typeface (such as HersheyGothicEnglish, HersheySans, or HersheyCyrillic) and send text to the terminal: [2] 
+
+----
+# Example: Creating a quick text banner plotted in Hershey Sans
+echo "0 0 10 10" | graph -T tek --font-name HersheySans --label "Hello Tektronix" > /dev/tty
+----
+
+=== Supported Hershey Fonts for Tektronix Output
+
+You can pass any of these exact strings into the --font-name attribute: [2] 
+
+
+* HersheySerif, HersheySerif-Bold, HersheySerif-Italic, HersheySerif-BoldItalic
+* HersheySans, HersheySans-Bold, HersheySans-Oblique, HersheySans-BoldOblique
+* HersheyGothicEnglish, HersheyGothicGerman, HersheyGothicItalian
+* HersheyScript, HersheyScript-Simplex, HersheyScript-Complex
+* HersheyCyrillic, HersheyGreek
+
+
+=== Emulation Tip
+
+If you are testing this without a physical Tektronix 4014 terminal, you can use the built-in emulator tool provided by the same package to preview your output file locally: [1, 5] 
+
+----
+graph -T tek --font-name HersheyScript "Hello" > output.tek
+tek2plot -T X output.tek
+----    
+
+Are you transmitting this data over a physical serial connection (RS-232) to a vintage terminal, or are you configuring a software emulator like Xterm or Kermit? If you are having issues with corrupted lines, we can adjust the baud rate delay settings or handshaking protocol.
+
+[1] [https://github.com](https://github.com/fedser/Plotutils) +
+[2] [https://www.cce.pk.edu.pl](https://www.cce.pk.edu.pl/~max/plotutils/plotutils.html) +
+[3] [https://www.itl.nist.gov](https://www.itl.nist.gov/div898/software/dataplot/refman1/ch4/charfont.pdf) +
+[4] [https://www.mkt-sys.de](https://www.mkt-sys.de/MKT-CD/upt/help/vector_fonts_01.htm) +
+[5] [https://github.com](https://github.com/lbernstone/plotutils) +
+[6] [https://linux.die.net](https://linux.die.net/man/1/plotfont) +
+[7] [https://linux.die.net](https://linux.die.net/man/1/plot)

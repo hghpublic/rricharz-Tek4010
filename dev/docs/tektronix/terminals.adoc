@@ -1,0 +1,184 @@
+= Terminals
+
+
+== Terminals
+
+The fundamental difference between the Tektronix 4010 and the Tektronix 4054 is their architectural class: the 4010 is a passive computer terminal, while the 4054 is a fully standalone desktop computer. [1, 2] 
+
+While both systems rely on [Tektronix](https://www.tek.com/de)’s famous Direct-View Bistable Storage Tube (DVST) technology—which holds a vector image on the screen without needing expensive frame-buffer memory—their capabilities, computing power, and physical dimensions differ significantly. [1, 2] 
+
+=== 📊 Direct Comparison
+
+[cols="1,1,1", options="header"]
+|===
+| Feature | Tektronix 4010 | Tektronix 4054
+
+| Device Type | Dumb Computer Terminal | Standalone Desktop Computer / Workstation
+| Release Year | 1971 | 1979
+| Screen Size | 11 inches | 19 inches
+| Vector Resolution | 1024 x 780 | 4096 x 3072
+| Internal CPU | None (Hardwired logic circuits) | 16-bit custom AMD 2901 bit-slice processor
+| Programmability | None (Requires a host mainframe) | Local BASIC interpreter in ROM
+| Built-in Storage | None | DC300 quarter-inch cartridge tape drive
+| Primary Interfaces | RS-232 / TTY current loop | GPIB (IEEE-488), optional RS-232
+|===
+
+=== 🔍 Key Differences Explained
+
+
+* Computing Autonomy: The [Tektronix 4010](https://en.wikipedia.org/wiki/Tektronix_4010) cannot run programs on its own. It is an input/output device that must be connected to a remote mainframe or minicomputer via serial lines to receive graphics commands. Conversely, the [Tektronix 4054](https://en.wikipedia.org/wiki/Tektronix_4050) features a high-performance 16-bit custom bit-slice CPU with hardware floating-point acceleration. It operates entirely offline, running complex graphics and engineering math programs directly in local memory. [2, 3, 4, 5] 
+* Screen & Resolution Leap: The 4010 features a modest 11-inch screen offering a 1024 x 780 resolution. The 4054 uses a massive 19-inch storage tube (inherited from the 4014 terminal) that expands the visual real estate to an ultra-sharp 4096 x 3072 vector grid. [1, 2, 6, 7] 
+* Dynamic Graphics (Write-Thru Mode): Standard storage tubes require the entire screen to flash and erase to change an image. However, the 4054 includes an option for a secondary refresh processor. This allows the computer to display "write-thru" (dynamic, non-stored) vector objects that move smoothly across the screen without permanently burning into the phosphor—a feature completely absent on the 4010. [2, 8] 
+* Target Use Case: The 4010 was deployed as a universal, relatively low-cost display portal for time-sharing systems. The 4054 was sold as a premium, all-in-one laboratory and engineering workstation meant to locally control test equipment via its parallel GPIB interface. [1, 5, 7] 
+
+
+(Note: Thanks to its onboard processing power, a 4054 equipped with an optional RS-232 interface pack can actually step down and perfectly emulate a 4010 terminal to talk to mainframes). [9] 
+
+Are you restoring or programming one of these vintage machines, or are you looking for details on their data formats and software compatibility?
+
+[1] [https://w140.com](https://w140.com/tekwiki/wiki/4052) +
+[2] [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Tektronix_4010) +
+[3] [https://www.facebook.com](https://www.facebook.com/groups/retrocomputers/posts/24171151582488062/) +
+[4] [https://forum.vcfed.org](https://forum.vcfed.org/index.php?threads/tektronix-4051-4052-4052a-4054-4054a-program-archives.65705/) +
+[5] [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Tektronix_4050) +
+[6] [https://www.facebook.com](https://www.facebook.com/groups/retrocomputers/posts/9496346820395114/) +
+[7] [https://w140.com](https://w140.com/tekwiki/wiki/4010) +
+[8] [https://vintagetek.org](https://vintagetek.org/4051-graphic-desktop-system/) +
+[9] [https://forum.vcfed.org](https://forum.vcfed.org/index.php?threads/tektronix-4051-4052-and-4054-computers-emulating-tektronix-4010-and-4014-terminals.78357/)
+
+
+== Development Environments
+
+Because Tektronix vector terminals were built decades ago, there is no single, unified modern commercial IDE for them. Instead, establishing a modern development environment involves pairing a modern terminal emulator (with Tektronix mode) with legacy libraries or tools to write programs that generate the appropriate vector escape codes.
+
+The essential components needed to build a Tektronix development workflow are outlined below:
+
+=== 1. Terminal Emulators & Target Displays (The "IDE" Output)
+
+To see your code draw in real time, a terminal emulator capable of intercepting Tektronix PLOT 10 escape sequences is required:
+
+
+* Native xterm (Linux / macOS): Virtually every standard Linux distribution features native support. Open an [xterm](https://en.wikipedia.org/wiki/Xterm) window, hold Ctrl and right-click, then select "Switch to Tektronix Mode". This opens a secondary window emulating a 1024x768 Tektronix 4014 layout. [1] 
+* [rricharz / Tek4010](https://github.com/rricharz/Tek4010) (Cross-Platform): This open-source emulator reproduces the specific storage tube behaviors, drawing speeds, and spot-fading artifacts of the 4010, 4013, 4014, and 4015 models. It is well-documented and optimized for modern computers and Raspberry Pi platforms. [2] 
+* [Isysxp / Tek40xx](https://github.com/Isysxp/Tek40xx) (Windows / Linux / macOS): An SDL2-based cross-platform emulator that applies anti-aliasing to realistically simulate the storage tube display's phosphor glow. [3, 4] 
+* [mmcgraw74 / Tektronix-4051-Emulator](https://github.com/mmcgraw74/Tektronix-4051-Emulator): For targeting standalone computers like the 4054 or 4051, this HTML5 browser-based environment emulates the Motorola 6800 CPU, custom ROMs, and line editor, operating completely standalone. [5] 
+
+
+=== 2. Graphics Libraries (The Programming Layer)
+
+Because these terminals respond to specific binary-encoded ASCII strings, writing graphics requires feeding data through compatible libraries.
+
+
+* The Classic Standard (PLOT 10): Tektronix’s proprietary library is called PLOT 10. While its source code can be hard to track down outside vintage mainframe archives (like Bitsavers), it was fundamentally built on FORTRAN IV / FORTRAN 77. A legacy development pipeline can be constructed using gfortran to output text to an xterm or Tek4010 emulator window. [6] 
+* Modern Language Alternatives: Instead of using original Fortran, custom scripts can be written in Python, C, or Perl to format strings manually. The vector format relies on transmitting a specific control code (GS or ASCII 29) followed by encoded 10-bit or 12-bit High/Low X and Y coordinates.
+
+
+=== 3. Assembling the Workflow
+
+To configure a complete, functioning pipeline, follow this setup:
+
+. Code Editor: Use [Visual Studio Code](https://code.visualstudio.com/) or any preferred modern text editor to write scripts in Python, C, or Fortran.
+. Output Pipeline: Configure the program to push all standard terminal outputs directly to the command line.
+. The Link: If using a standalone emulator like Tek40xx, execute the program and pipe your script's output to it over a local Telnet connection:
+
+----
+python my_vector_script.py | telnet localhost 23
+----
+
+Alternatively, executing the script straight out of a Tektronix-activated xterm terminal will cause it to read the incoming stream and dynamically plot vectors across the screen. [1, 4] 
+
+
+[1] [https://forums.atariage.com](https://forums.atariage.com/topic/152982-the-atari-the-tektronix-4014-vector-graphics-terminal/) +
+[2] [https://github.com](https://github.com/rricharz/Tek4010) +
+[3] [https://github.com](https://github.com/Isysxp/Tek40xx) +
+[4] [https://github.com](https://github.com/Isysxp/Tek40xx) +
+[5] [https://github.com](https://github.com/mmcgraw74/Tektronix-4051-Emulator) +
+[6] [https://w140.com](https://w140.com/tekwiki/wiki/4010)
+
+== Tektronix 4010 / 4014 Emulation Terminals
+
+Several distinct types of hardware and software terminals offer native or built-in Tektronix 4010 / 4014 vector graphics emulation to render vector commands and .plt files.
+
+=== 1. Modern Software Terminal Emulators (Everyday Use)
+
+
+* XTerm (Linux / Unix / macOS): XTerm is the gold standard for software Tektronix emulation. It maintains a completely native, separate Tektronix 4014 high-resolution window alongside its standard VT102 text window.
+* How to activate: Run xterm -t from your command line to boot directly into Tektronix mode, or hold Ctrl + Right-Click inside an active XTerm window and select "Switch to Tektronix Mode". You can also pass the escape sequence ESC [ ? 38 h to force the switch programmatically. [1, 2, 3, 4] 
+* MS-Kermit (MS-DOS / Retro PCs): The legendary [Kermit terminal software](http://www.columbia.edu/kermit/) (specifically version 2.30 and up) features an exceptionally robust Tektronix 4010/4014 emulation mode that retro-computing enthusiasts use to display vector graphics on vintage PCs. [5] 
+* Tek40xx / Tek-Term (Cross-Platform): A highly specialized, modern open-source emulator available on [GitHub (Isysxp/Tek40xx)](https://github.com/Isysxp/Tek40xx). Built using SDL2, it is dedicated entirely to replicating the exact vector rendering, coordinate system, and slight phosphor blur of historical Tektronix storage tubes on modern Windows, Linux, and macOS displays. [6] 
+
+
+=== 2. Historical Hardware Terminals (Vintage Clones)
+
+If you are looking at physical hardware from the terminal era, many manufacturers built Tektronix modes into their text terminals to avoid the massive cost of original Tektronix hardware: [7] 
+
+[cols="1,1,1", options="header"]
+|===
+| Manufacturer / Model | Emulation Type | Graphics Capability
+
+| DEC VT330 / VT340 | Native Built-in | Maps 1024×768 Tektronix coordinates natively to its internal pixel array.
+| DEC VT240 / VT241 | Native Built-in | Supported standard Tektronix 4010 vector streams via mode-switching strings.
+| DEC VT100 (with Retrographics) | Third-Party Hardware Add-on | Base VT100s were text-only, but adding a "Digital Engineering Retrographics" expansion card gave them full 4010 vector capabilities.
+| GraphOn, Falco, & HDS Terminals | Native Firmware | Broad families of late-80s serial raster terminals shipped with "Tek Mode" accessible directly in their setup menus.
+|===
+
+=== 3. Tektronix's Own Later Hardware
+
+* Tektronix 4100 / 4200 Series: Tektronix's own later color-raster color terminals (such as the 4105, 4107, 4115, and 4207) included robust backward-compatibility modes to natively interpret older 4010/4014 vector file streams alongside newer, color-capable PLOT 10 formats. [8, 9] 
+* Tektronix 4051 / 4052 / 4054 Desktop Computers: While standalone computing systems, when equipped with an "Option 1" serial communications backpack, these desktop computers function perfectly as hardware terminal emulators for 4010 vectors. [10, 11] 
+
+
+Are you trying to pipe data into XTerm using a tool like Gnuplot, or are you looking to write script configurations to toggle the terminal window automatically? Let me know your setup so I can provide the proper initialization commands.
+
+[1] [https://hackaday.io](https://hackaday.io/project/206019-graphics-terminal-for-small-computers) +
+[2] [https://www.glukhov.org](https://www.glukhov.org/developer-tools/terminals-shell/terminal-emulators-for-linux-comparison/) +
+[3] [https://forums.atariage.com](https://forums.atariage.com/topic/152982-the-atari-the-tektronix-4014-vector-graphics-terminal/) +
+[4] [https://www.pegasusinfocorp.com](https://www.pegasusinfocorp.com/web_development_knowledgebase/linuxhowto/Text-Terminal-HOWTO-9.html) +
+[5] [https://www.itl.nist.gov](https://www.itl.nist.gov/div898/software/dataplot/refman1/ch7/tektroni.pdf) +
+[6] [https://github.com](https://github.com/Isysxp/Tek40xx) +
+[7] [https://www.reddit.com](https://www.reddit.com/r/programming/comments/js168/opengl_teapot_rendered_in_xterm_using_tektronix/) +
+[8] [https://w140.com](https://w140.com/tekwiki/wiki/4100-Series_Terminals) +
+[9] [https://w140.com](https://w140.com/tekwiki/wiki/4100-Series_Terminals) +
+[10] [https://forum.vcfed.org](https://forum.vcfed.org/index.php?threads/tektronix-4051-4052-and-4054-computers-emulating-tektronix-4010-and-4014-terminals.78357/) +
+[11] [https://www.facebook.com](https://www.facebook.com/groups/retrocomputers/posts/9496346820395114/)
+
+
+== Tektronix 4014 escape codes
+
+The escape codes and vector graphics stream commands for the Tektronix 4014 (and its closely related variants, the 4010, 4012, and 4015) are natively defined across a few official historical hardware manuals and software reference sets.
+
+If you are looking to audit the exact bit structures or implement an emulator, these are the core defining documents:
+
+=== 1. Primary Hardware & Reference Manuals
+
+
+* Tektronix 4014 and 4014-1 Computer Display Terminal User's Manual (Tektronix Part Number: 070-1647-00): This is the definitive operational reference. Section 2 ("Operating Information") and the comprehensive appendix tables lay out the absolute mapping of the byte streams—explaining how to toggle between Alpha Mode, Graph Mode, and GIN (Graphic Input) Mode. It explicitly defines how the 4-byte coordinate codes (High Y, Low Y, High X, Low X) translate into 10-bit or 12-bit screen addresses. [1, 2, 3] 
+* Tektronix 4015 and 4015-1 Computer Display Terminal User's Instruction Manual (Tektronix Part Number: 070-1649-00): The 4015 added an APL character set module. This document outlines the expanded escape sequence extensions built natively on top of the base 4014 set. [1, 4] 
+* Tektronix 4014 / 4015 Service Manual (Tektronix Part Number: 070-2303-00): Contains low-level operational specifications and timing logic diagrams detailing how the terminal’s control circuitry physically interprets specific control sequences (like ESC FF for page clearing/erase). [1] 
+
+
+=== 2. Software Ecosystem Libraries
+
+
+* [Tektronix](https://www.tek.com/de) PLOT-10 Library Documentation: Tektronix provided a widely adopted standard library of FORTRAN subroutines (Terminal Control System or TCS, and the Interactive Graphics Library or IGL). The programmer reference manuals for PLOT-10 define the software commands that procedurally wrap and generate the underlying raw escape codes. [5] 
+
+
+=== 3. Modern Digital Equivalents (For Quick Reference)
+
+Because finding original printed manuals can be difficult, modern terminal emulator specifications are highly accurate summaries:
+
+
+* The xterm Control Sequences Document: Since xterm natively features an incredibly accurate Tektronix 4014 emulator, the official ctlseqs.ms (or ctlseqs.html) document maintained alongside xterm source repositories features a dedicated Tektronix 4014 Mode section. It concisely lists all standard sequences, including font size selections (ESC 8 through ESC ;), line type controls (dotted, dashed, etc.), and status requests. [2, 3, 6] 
+
+
+Digital copies of the original 070-1647-00 user manuals are fully archived and searchable via community repositories such as Bitsavers.org and [VT100.net](https://www.vt100.net/tektronix/). [4, 7] 
+
+Are you building a software-based parser/emulator for Tektronix streams, or are you trying to troubleshoot an existing vintage application that targets this hardware?
+
+[1] [https://w140.com](https://w140.com/tekwiki/wiki/Manuals/Terminals) +
+[2] [https://www.xfree86.org](https://www.xfree86.org/current/xterm.1.html) +
+[3] [https://en.wikipedia.org](https://en.wikipedia.org/wiki/Tektronix_4010) +
+[4] [https://www.mirrorservice.org](http://www.mirrorservice.org/sites/www.bitsavers.org/pdf/tektronix/401x/070-1649-00_4015_and_4015-1_Computer_Display_Terminal_Users_Instruction_Manual_Aug1974.pdf) +
+[5] [https://bitsavers.trailing-edge.com](http://bitsavers.trailing-edge.com/pdf/tektronix/411x/4114/061-2564-01_4114_HostPgmg_Feb83.pdf) +
+[6] [https://espterm.github.io](https://espterm.github.io/docs/espterm-xterm.html) +
+[7] [https://www.vt100.net](https://www.vt100.net/tektronix/)
