@@ -1,0 +1,44 @@
+= Animations
+
+== Animations
+
+Yes, you can send complete animations to a Tektronix terminal, but because of how the hardware works, you have to approach it differently than on a modern pixel-based display.
+The strategy depends entirely on whether you are targeting a vintage physical terminal or a modern software emulator (like xterm -t).
+------------------------------
+## 1. The Challenge: Storage Tube Technology
+Original Tektronix 4010/4014 terminals are Direct-View Storage Tubes (DVST).
+
+* No Framebuffer: The electron beam draws vectors directly onto a bistable phosphor screen. Once a line is drawn, it remains glowing permanently without needing to be refreshed.
+* Destructive Erase: To clear a single moving object, you cannot simply "erase" that line; you must flash and erase the entire screen using the ESC FF sequence. This causes a bright green flash and takes about 300 to 500 milliseconds to settle.
+
+## 2. How to achieve animations
+Depending on your environment, you can use three primary animation techniques:
+## Method A: Low-Framerate Erase & Redraw (Best for Emulators)
+If you are using xterm -t or a modern software emulator, the "erase flash" time is instantaneous. You can achieve smooth animations (~15 to 24 FPS) by looping the sequence you used earlier:
+
+   1. Clear the screen (ESC FF)
+   2. Update your physics/coordinates in Python
+   3. Draw the new vectors
+   4. Pause for a tiny fraction of a second (time.sleep)
+
+This is exactly how the 3D Rectangular Tunnel Flight program we built earlier functions.
+## Method B: "Refresh Mode" / Non-Store Mode (For Real Hardware)
+The Tektronix 4014 (and some modified 4010 models) introduced a special feature called Write-Thru Mode or Refresh Mode.
+
+* By sending a specific escape sequence (ESC o or ESC depending on the modification), you can tell the terminal to lower the beam energy.
+* The lines will glow faintly but will not stick (store) to the screen.
+* If your Python script loops and constantly redraws the object at a high speed, it will appear as a flickering, real-time animation without ever needing to clear the screen!
+
+## Method C: The "Deflector" / Growing Line Technique
+Because lines persist, you can create animations where objects leave trails, morph, or organically grow into patterns (like a Spirograph or an expanding vector matrix) without using the erase command at all.
+------------------------------
+## Comparison for Projecting Content
+
+| Animation Type | Best For | Hardware Experience | Emulator Experience |
+|---|---|---|---|
+| Erase-and-Redraw Loop | Simple 3D wireframes, moving shapes | Harsh flashing, low FPS (2-3 FPS max) | Excellent & Smooth (20+ FPS) |
+| Write-Thru Mode | Interactive games (Pong, Asteroids), cursors | Flickering but true real-time | Varies (Some emulators ignore it) |
+| Continuous Plotting | Graphs, fractals, screensavers | Beautiful, bright, permanent art | Perfect lines |
+
+Are you building an animation for a real physical Tektronix machine (where we need to optimize for connection baud-rates and phosphor flash timing) or are you strictly using xterm on a modern computer?
+

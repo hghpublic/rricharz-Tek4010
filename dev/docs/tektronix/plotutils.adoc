@@ -1,0 +1,27 @@
+= plotutils
+
+https://www.gnu.org/software/plotutils/plotutils.html
+
+https://github.com/fedser/Plotutils
+
+[source, bash]
+----
+sudo apt install plotutils
+
+
+tek2plot --version
+tek2plot (GNU plotutils) 2.6
+Copyright (C) 2009 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Written by Robert S. Maier.
+----
+
+[source, bash]
+----
+graph -T tek -g 3 -L "data_01" < data_01.txt > data_01.tek
+tek2plot -T png data_01.tek > data_01.png
+BITMAPSIZE=640x400 tek2plot -T png data_01.tek > data_01.png
+BG_COLOR=white tek2plot -T png data_01.tek > data_01.png
+
+----
