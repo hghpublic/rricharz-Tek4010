@@ -1,0 +1,10 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "tek4010",
+    "version": "2.0.2",
+    "dependencies": [
+        "catch2",
+        "gtk3",
+        "cairo"
+    ]
+}
