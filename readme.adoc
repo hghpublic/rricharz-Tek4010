@@ -1,0 +1,43 @@
+= Tek4010
+:toc:
+:sectnums:
+ifndef::env-github[:icons: font]
+:note-caption: :paperclip:
+:important-caption: :exclamation:
+:warning-caption: :warning:
+
+[IMPORTANT]
+====
+The commit history of this branch is volatile. +
+Rebasing and force pushing happens at will. +
+The commits in this branch mostly collect changes with a narrow scope. +
+They rarely document code evolution. +
+The history may be rewritten without notice.
+====
+
+== Rene Richarz
+
+=== GitHub
+
+https://github.com/rricharz
+
+== Tek4010
+
+[source, bash]
+----
+./build/tek4010 demos/demo.sh
+./build/tek4010 demos/fdemo.sh
+./build/tek4010 demos/gdemo.sh
+./build/tek4010 demos/idemo.sh
+----
+
+. https://github.com/rricharz/Tek4010
+. https://github.com/Isysxp/Tek40xx
+
+== YouTube
+
+https://www.youtube.com/@renericharz755
+
+Demonstration of Tektronix 4010/4014 terminal emulator
+
+https://www.youtube.com/watch?v=ioYiu6oUT88
