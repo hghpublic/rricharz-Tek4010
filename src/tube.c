@@ -269,9 +269,6 @@ int tube_isInput()
         struct timeval tv;
         int result;
 
-        if (isGinMode)
-                return 0;
-
         FD_ZERO(&rfds);
         FD_SET(getDataPipe[0], &rfds);
 
