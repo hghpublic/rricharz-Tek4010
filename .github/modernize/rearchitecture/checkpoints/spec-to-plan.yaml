@@ -1,0 +1,152 @@
+# Spec-to-Plan Traceability Checkpoint
+metadata:
+  generated: "2026-11-08"
+  source_spec: ".github/modernize/rearchitecture/spec.md"
+  target_plan: ".github/modernize/rearchitecture/plan.md"
+
+summary:
+  total_requirements: 10
+  covered_requirements: 10
+  missing_requirements: 0
+  coverage_percentage: 100.0
+
+requirements:
+  - req_id: "REQ-001"
+    req_description: "Add an isolated C++26 GTK3 target while keeping the legacy C application unchanged."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-1"
+      phase_name: "Setup and foundational"
+      items:
+        - item_id: "1.1"
+          description: "Configure the isolated C++26 target."
+        - item_id: "2.1"
+          description: "Define C++ interfaces and generated help input."
+    notes: ""
+  - req_id: "REQ-002"
+    req_description: "Preserve CLI options, ordering, help text, diagnostics, and exit outcomes."
+    priority: "P2"
+    plan_mapping:
+      phase: "Phase-3"
+      phase_name: "CLI and PTY"
+      items:
+        - item_id: "3.1"
+          description: "Port CLI, PTY, and child lifecycle."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-003"
+    req_description: "Preserve PTY command/shell launch, TERM, and erase behavior."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-3"
+      phase_name: "CLI and PTY"
+      items:
+        - item_id: "3.1"
+          description: "Port CLI, PTY, and child lifecycle."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-004"
+    req_description: "Preserve baud rates, 7-bit input, pacing, and automatic fast mode."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-3"
+      phase_name: "CLI and PTY"
+      items:
+        - item_id: "3.1"
+          description: "Port CLI, PTY, and child lifecycle."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-005"
+    req_description: "Preserve Tektronix 4010/4014 parsing and GIN behavior."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-4"
+      phase_name: "Protocol parsers"
+      items:
+        - item_id: "4.1"
+          description: "Port terminal protocol parsers."
+        - item_id: "5.1"
+          description: "Port GTK/Cairo lifecycle, input, and rendering."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-006"
+    req_description: "Preserve keyboard mapping, APL, break, shortcuts, and GIN response ordering."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-5"
+      phase_name: "GTK/Cairo lifecycle"
+      items:
+        - item_id: "4.1"
+          description: "Port terminal protocol parsers."
+        - item_id: "5.1"
+          description: "Port GTK/Cairo lifecycle, input, and rendering."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-007"
+    req_description: "Preserve ARDS parsing, coordinates, control codes, and drawing behavior."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-4"
+      phase_name: "Protocol parsers"
+      items:
+        - item_id: "4.1"
+          description: "Port terminal protocol parsers."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-008"
+    req_description: "Preserve GTK modes, signals/timers, Cairo surfaces, cursor, sizing, and rendering."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-5"
+      phase_name: "GTK/Cairo lifecycle"
+      items:
+        - item_id: "5.1"
+          description: "Port GTK/Cairo lifecycle, input, and rendering."
+        - item_id: "7.1"
+          description: "Validate, review, and hand off."
+    notes: ""
+  - req_id: "REQ-009"
+    req_description: "Preserve child completion, interactive-shell shutdown, exit, and wait behavior."
+    priority: "P2"
+    plan_mapping:
+      phase: "Phase-3"
+      phase_name: "CLI and PTY"
+      items:
+        - item_id: "3.1"
+          description: "Port CLI, PTY, and child lifecycle."
+        - item_id: "5.1"
+          description: "Port GTK/Cairo lifecycle, input, and rendering."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+  - req_id: "REQ-010"
+    req_description: "Preserve visible diagnostics and nonzero outcomes on command, PTY, stream, and drawing failures."
+    priority: "P1"
+    plan_mapping:
+      phase: "Phase-1"
+      phase_name: "Setup and foundational"
+      items:
+        - item_id: "1.1"
+          description: "Configure the isolated C++26 target."
+        - item_id: "3.1"
+          description: "Port CLI, PTY, and child lifecycle."
+        - item_id: "5.1"
+          description: "Port GTK/Cairo lifecycle, input, and rendering."
+        - item_id: "6.1"
+          description: "Add behavior-parity checks."
+    notes: ""
+
+missing_requirements: []
+orphan_plan_items: []
+
+validation:
+  passed: true
+  errors: []
+  warnings:
+    - "Display-backed GUI rendering checks require a usable graphical display."

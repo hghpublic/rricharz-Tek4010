@@ -1,0 +1,101 @@
+unit: terminal-emulator
+side_effects:
+  - source_loc: src/tube.c:389
+    effect: "Parse CLI options and spawn either the requested command or an interactive shell under a pseudo-terminal."
+    must_preserve: true
+  - source_loc: src/tube.c:545
+    effect: "Set TERM to tek4014 in the child process and configure terminal erase behavior for an interactive shell."
+    must_preserve: true
+  - source_loc: src/main.c:183
+    effect: "On shutdown, close PTY input and run the existing rs232-console cleanup command."
+    must_preserve: true
+  - source_loc: src/tek4010.c:171
+    effect: "In GIN mode, write the key, four packed coordinate bytes, then CR to the PTY and suppress the expected echo."
+    must_preserve: true
+  - source_loc: src/tek4010.c:116
+    effect: "On the Tektronix bell control code, wait 50 ms, hide the cursor, and stop the current drawing batch."
+    must_preserve: true
+branches:
+  - source_loc: src/tube.c:393
+    condition: "No command argument remains after option parsing."
+    behavior: "Start the configured interactive shell, falling back to /bin/sh when SHELL is absent, empty, or zsh."
+    must_preserve: true
+  - source_loc: src/tube.c:408
+    condition: "The first argument is -h or --help."
+    behavior: "Print the help text and exit successfully before creating the PTY."
+    must_preserve: true
+  - source_loc: src/tube.c:400
+    condition: "The argument count exceeds 19."
+    behavior: "Print the too-many-arguments error and exit with status 1."
+    must_preserve: true
+  - source_loc: src/tube.c:498
+    condition: "An option is not recognized."
+    behavior: "Print the unknown-argument message and exit with status 1."
+    must_preserve: true
+  - source_loc: src/tube.c:505
+    condition: "The selected baud rate exceeds 20000."
+    behavior: "Enable fast rendering automatically."
+    must_preserve: true
+  - source_loc: src/main.c:113
+    condition: "Redraw latency exceeds 100 ms at least twice within 10 seconds after the first second, and fast mode is not already active."
+    behavior: "Switch permanently to fast mode and print the performance warning."
+    must_preserve: true
+  - source_loc: src/main.c:276
+    condition: "The user presses Home."
+    behavior: "Request persistent-screen clearing and queue a redraw."
+    must_preserve: true
+  - source_loc: src/main.c:289
+    condition: "Alt/Option-Q is pressed."
+    behavior: "Run shutdown handling and exit the GTK loop."
+    must_preserve: true
+  - source_loc: src/main.c:294
+    condition: "APL mode is enabled and Alt/Option-N or Alt/Option-O is pressed."
+    behavior: "Enable or disable the APL character set."
+    must_preserve: true
+  - source_loc: src/main.c:312
+    condition: "Backspace/Delete, control, or printable keys are pressed."
+    behavior: "Convert the key to its terminal byte; route it to GIN handling or the PTY, applying APL translation and overstrike when enabled."
+    must_preserve: true
+  - source_loc: src/tube.c:659
+    condition: "The child process exits."
+    behavior: "Exit immediately for an interactive shell or -exit; otherwise show completion and honor -wait before shutdown."
+    must_preserve: true
+  - source_loc: src/tube.c:708
+    condition: "A left mouse button is pressed while not in ARDS mode."
+    behavior: "Forward window coordinates to Tek GIN handling and request redraw."
+    must_preserve: true
+  - source_loc: src/main.c:222
+    condition: "ARDS mode was selected."
+    behavior: "Dispatch redraw input to the ARDS parser; otherwise use the Tektronix parser."
+    must_preserve: true
+  - source_loc: src/tek4010.c:202
+    condition: "The escape parser receives a recognized control sequence."
+    behavior: "Preserve cursor, character-set, size, line-style, write-through, GIN, point-plot, and ignored ANSI-sequence transitions."
+    must_preserve: true
+  - source_loc: src/ards.c:78
+    condition: "ARDS mode receives symbol, point, extended-vector, short-vector, or control bytes."
+    behavior: "Preserve ARDS coordinate decoding, cursor movement, screen clear, and drawing behavior."
+    must_preserve: true
+error_paths:
+  - source_loc: src/tube.c:515
+    trigger: "The requested command cannot be found."
+    outcome: "Print an unknown-command message and exit with status 1."
+    contract: "Nonzero process exit; preserve the diagnostic."
+    must_preserve: true
+  - source_loc: src/tube.c:527
+    trigger: "forkpty fails."
+    outcome: "Print the pseudo-terminal creation error and exit with status 1."
+    contract: "Nonzero process exit."
+    must_preserve: true
+  - source_loc: src/tube.c:573
+    trigger: "Duplicating the PTY descriptor or opening an input/output stream fails."
+    outcome: "Print the corresponding diagnostic and exit with status 1."
+    contract: "Nonzero process exit."
+    must_preserve: true
+  - source_loc: src/main.c:209
+    trigger: "Creating the Cairo drawing contexts fails."
+    outcome: "Print the drawing-surface error and exit with status 1."
+    contract: "Nonzero process exit."
+    must_preserve: true
+concurrency:
+  model: event-loop

@@ -1,0 +1,37 @@
+units:
+  - name: terminal-emulator
+    trigger: cli
+    trigger_detail: "tek4010 [options] COMMAND [...]; when no command is supplied, start an interactive shell in a PTY and run the GTK event loop"
+    source_anchors:
+      - path: src/main.c
+        line: 359
+      - path: src/tube.c
+        line: 389
+      - path: src/tek4010.c
+        line: 353
+      - path: src/ards.c
+        line: 78
+      - path: src/main.h
+      - path: src/tube.h
+    exported_signature:
+      - method: "int main(int argc, char *argv[])"
+        source_loc: src/main.c:359
+        stability: must_preserve
+    dynamic_entrypoints:
+      - target: on_draw_event
+        mechanism: convention
+        source_loc: src/main.c:161
+      - target: on_timer_event
+        mechanism: convention
+        source_loc: src/main.c:166
+      - target: clicked
+        mechanism: convention
+        source_loc: src/main.c:176
+      - target: on_quit_event
+        mechanism: convention
+        source_loc: src/main.c:183
+      - target: on_key_press
+        mechanism: convention
+        source_loc: src/main.c:259
+    depends_on: []
+    shared_refs: []

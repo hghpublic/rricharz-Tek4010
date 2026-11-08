@@ -1,0 +1,35 @@
+unit: terminal-emulator
+commit: false
+candidate_splits:
+  - id: src/main.c:97-461
+    drivers: [lifecycle_split, concern_split]
+    rationale: >
+      This slice owns the GTK application lifecycle, display sizing, key and mouse callbacks,
+      drawing dispatch, and performance fallback; these concerns form a distinct presentation boundary.
+    source_slice:
+      file: src/main.c
+      lines: [97, 461]
+  - id: src/tube.c:234-726
+    drivers: [concern_split, execution_model_split]
+    rationale: >
+      This slice combines CLI option parsing and PTY process creation with timed byte input,
+      child monitoring, and user-input transport; process lifetime and terminal transport can be separated.
+    source_slice:
+      file: src/tube.c
+      lines: [234, 726]
+  - id: src/tek4010.c:93-727
+    drivers: [concern_split]
+    rationale: >
+      This slice contains a substantial Tektronix protocol state machine with independent control,
+      coordinate decoding, and graphics actions, while sharing drawing state with the tube renderer.
+    source_slice:
+      file: src/tek4010.c
+      lines: [93, 727]
+  - id: src/ards.c:59-239
+    drivers: [protocol_split]
+    rationale: >
+      This parser implements a distinct ARDS byte protocol and coordinate system selected by a CLI option,
+      while reusing the common Cairo drawing primitives.
+    source_slice:
+      file: src/ards.c
+      lines: [59, 239]

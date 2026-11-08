@@ -1,0 +1,140 @@
+# Plan-to-Tasks Traceability Checkpoint
+metadata:
+  generated: "2026-11-08"
+  source_plan: ".github/modernize/rearchitecture/plan.md"
+  target_tasks: ".github/modernize/rearchitecture/plan.md (inline task list)"
+
+summary:
+  total_plan_items: 8
+  covered_plan_items: 8
+  missing_plan_items: 0
+  coverage_percentage: 100.0
+  total_tasks_generated: 12
+  orphan_tasks: 0
+
+phases:
+  - phase_id: "Phase-1"
+    phase_name: "Setup"
+    items:
+      - item_id: "1.1"
+        description: "Configure the isolated C++26 target."
+        tasks:
+          - task_id: "T001"
+            description: "Configure the isolated C++26 executable and CMake subdirectories."
+        notes: ""
+  - phase_id: "Phase-2"
+    phase_name: "Foundational"
+    items:
+      - item_id: "2.1"
+        description: "Define C++ interfaces and generated help input."
+        tasks:
+          - task_id: "T002"
+            description: "Port shared declarations and configure a generated help header."
+        notes: ""
+  - phase_id: "Phase-3"
+    phase_name: "CLI and PTY"
+    items:
+      - item_id: "3.1"
+        description: "Port CLI, PTY, and child lifecycle."
+        tasks:
+          - task_id: "T004"
+            description: "Port CLI, PTY, pacing, and child lifecycle with focused tests."
+          - task_id: "T008"
+            description: "Add option and local-control parity cases."
+        notes: ""
+  - phase_id: "Phase-4"
+    phase_name: "Protocol parsers"
+    items:
+      - item_id: "4.1"
+        description: "Port terminal protocol parsers."
+        tasks:
+          - task_id: "T005"
+            description: "Port Tektronix parsing and GIN response behavior."
+          - task_id: "T006"
+            description: "Port ARDS parsing and drawing behavior."
+        notes: ""
+  - phase_id: "Phase-5"
+    phase_name: "GTK/Cairo lifecycle"
+    items:
+      - item_id: "5.1"
+        description: "Port GTK/Cairo lifecycle, input, and rendering."
+        tasks:
+          - task_id: "T007"
+            description: "Port GTK/Cairo lifecycle and add startup/display smoke coverage."
+          - task_id: "T008"
+            description: "Add option and local-control parity cases."
+        notes: ""
+  - phase_id: "Phase-6"
+    phase_name: "Behavior-parity tests"
+    items:
+      - item_id: "6.1"
+        description: "Add behavior-parity checks."
+        tasks:
+          - task_id: "T003"
+            description: "Register CTest/Catch2 and module test scaffolding."
+          - task_id: "T004"
+            description: "Add CLI, PTY, and failure-path tests."
+          - task_id: "T005"
+            description: "Add Tek protocol and GIN tests."
+          - task_id: "T006"
+            description: "Add ARDS protocol tests."
+          - task_id: "T007"
+            description: "Add display-independent startup checks."
+          - task_id: "T008"
+            description: "Add option/local-control parity cases."
+          - task_id: "T009"
+            description: "Run the CTest suite and CLI/protocol parity checks."
+        notes: ""
+  - phase_id: "Phase-7"
+    phase_name: "Validation and handoff"
+    items:
+      - item_id: "7.1"
+        description: "Validate, review, and hand off."
+        tasks:
+          - task_id: "T009"
+            description: "Build and run CTest and side-by-side parity checks."
+          - task_id: "T010"
+            description: "Run all four display-backed demos and compare output."
+          - task_id: "T011"
+            description: "Complete code/test reviews and compile Typst reports."
+          - task_id: "T012"
+            description: "Update handoff, session history, and design-decision register."
+        notes: ""
+
+missing_plan_items: []
+orphan_tasks: []
+
+upstream_trace:
+  - plan_item: "1.1"
+    source_requirements: ["REQ-001", "REQ-010"]
+    tasks: ["T001"]
+    full_trace: "REQ-001,REQ-010 → Phase-1.1 → T001"
+  - plan_item: "2.1"
+    source_requirements: ["REQ-001", "REQ-002"]
+    tasks: ["T002"]
+    full_trace: "REQ-001,REQ-002 → Phase-2.1 → T002"
+  - plan_item: "3.1"
+    source_requirements: ["REQ-002", "REQ-003", "REQ-004", "REQ-009", "REQ-010"]
+    tasks: ["T004", "T008"]
+    full_trace: "REQ-002,REQ-003,REQ-004,REQ-009,REQ-010 → Phase-3.1 → T004,T008"
+  - plan_item: "4.1"
+    source_requirements: ["REQ-005", "REQ-006", "REQ-007"]
+    tasks: ["T005", "T006"]
+    full_trace: "REQ-005,REQ-006,REQ-007 → Phase-4.1 → T005,T006"
+  - plan_item: "5.1"
+    source_requirements: ["REQ-005", "REQ-006", "REQ-008", "REQ-009"]
+    tasks: ["T007", "T008"]
+    full_trace: "REQ-005,REQ-006,REQ-008,REQ-009 → Phase-5.1 → T007,T008"
+  - plan_item: "6.1"
+    source_requirements: ["REQ-002", "REQ-003", "REQ-004", "REQ-005", "REQ-006", "REQ-007", "REQ-009", "REQ-010"]
+    tasks: ["T003", "T004", "T005", "T006", "T007", "T008", "T009"]
+    full_trace: "REQ-002,REQ-003,REQ-004,REQ-005,REQ-006,REQ-007,REQ-009,REQ-010 → Phase-6.1 → T003,T004,T005,T006,T007,T008,T009"
+  - plan_item: "7.1"
+    source_requirements: ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005", "REQ-006", "REQ-007", "REQ-008", "REQ-009", "REQ-010"]
+    tasks: ["T009", "T010", "T011", "T012"]
+    full_trace: "REQ-001..REQ-010 → Phase-7.1 → T009,T010,T011,T012"
+
+validation:
+  passed: true
+  errors: []
+  warnings: []

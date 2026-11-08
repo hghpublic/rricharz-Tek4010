@@ -1,0 +1,43 @@
+user_intent:
+  raw_request: "migrate tek4010 from c to c++26 in dev/Tek4010/cpp/tek4010-gtk3/CMakeLists.txt; clarified scope: full-port"
+  inferred_acceptance:
+    - "Provide a runnable GTK3 Tek4010 implementation compiled as C++26 in dev/Tek4010/cpp/tek4010-gtk3."
+    - "Preserve the existing CLI, PTY, keyboard, Tektronix, ARDS, and rendering behavior."
+  cleanup_required: false
+strategy: phased
+runtime_reachable:
+  - dev/Tek4010/cpp/tek4010-gtk3/CMakeLists.txt
+  - dev/Tek4010/cpp/tek4010-gtk3/src/CMakeLists.txt
+  - dev/Tek4010/cpp/tek4010-gtk3/src/main.cpp
+  - dev/Tek4010/cpp/tek4010-gtk3/src/tube.cpp
+  - dev/Tek4010/cpp/tek4010-gtk3/src/tek4010.cpp
+  - dev/Tek4010/cpp/tek4010-gtk3/src/ards.cpp
+must_rewrite:
+  - path: dev/Tek4010/cpp/tek4010-gtk3/CMakeLists.txt
+    reason: "Declares the requested C++26 GTK3 executable and its dependencies."
+  - path: dev/Tek4010/cpp/tek4010-gtk3/src/CMakeLists.txt
+    reason: "Registers the C++26 implementation sources in the new executable."
+  - path: dev/Tek4010/cpp/tek4010-gtk3/src/main.cpp
+    reason: "GTK3 entrypoint, drawing lifecycle, and input callbacks must run in the port."
+  - path: dev/Tek4010/cpp/tek4010-gtk3/src/tube.cpp
+    reason: "PTY lifecycle, command options, shared emulator state, timing, and Cairo primitives are runtime-reachable."
+  - path: dev/Tek4010/cpp/tek4010-gtk3/src/tek4010.cpp
+    reason: "Tektronix byte-stream state machine is runtime-reachable."
+  - path: dev/Tek4010/cpp/tek4010-gtk3/src/ards.cpp
+    reason: "ARDS mode is selected by a supported CLI flag and is runtime-reachable."
+copy_as_is:
+  - src/help.h.txt
+  - demos/
+legacy_allowed_to_remain:
+  - src/main.c
+  - src/tube.c
+  - src/tek4010.c
+  - src/ards.c
+  - "The root C target and existing C implementation remain available as a reference and are not modified by the port."
+defer_cleanup:
+  - "Retire or replace the root C application only after the C++26 target has behavior and runtime parity and the user requests cutover."
+full_rewrite_reason: null
+implementation_rule: >
+  The new GTK3 C++26 target is a full behavioral port of the existing application.
+  Keep the original C implementation unchanged as the reference; do not treat source_anchors
+  as authorization to modify those files.

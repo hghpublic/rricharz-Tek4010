@@ -1,0 +1,33 @@
+unit: terminal-emulator
+bindings:
+  - type: listener
+    name: "GTK drawing-area draw signal"
+    source_loc: src/main.c:401
+    target: on_draw_event
+    must_appear_in_target: true
+    notes: "Redraws persistent and temporary Cairo surfaces."
+  - type: listener
+    name: "GTK drawing-area button-press-event signal"
+    source_loc: src/main.c:403
+    target: clicked
+    must_appear_in_target: true
+    notes: "Forwards mouse input to Tek GIN handling unless ARDS mode is active."
+  - type: listener
+    name: "GTK window key_press_event signal"
+    source_loc: src/main.c:404
+    target: on_key_press
+    must_appear_in_target: true
+    notes: "Routes local emulator shortcuts and terminal input."
+  - type: listener
+    name: "GTK drawing-area destroy signal"
+    source_loc: src/main.c:402
+    target: on_quit_event
+    must_appear_in_target: true
+    notes: "Performs PTY cleanup and exits the GTK loop."
+  - type: listener
+    name: "GLib timeout callback"
+    source_loc: src/main.c:446
+    target: on_timer_event
+    must_appear_in_target: true
+    notes: "Registered with TIME_INTERVAL (35 ms) to check PTY input, child status, and redraw readiness."
+runtime_config: []

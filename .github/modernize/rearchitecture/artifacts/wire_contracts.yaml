@@ -1,0 +1,20 @@
+contracts:
+  - name: "Terminal byte stream over the PTY"
+    unit: terminal-emulator
+    type: file
+    stability: must_preserve
+    source_loc: src/tube.c:265
+    contract:
+      method: "PTY input/output"
+      path: "PTY master stream connected to the spawned shell or command"
+      request: "Child output is consumed as terminal bytes; values are masked to seven bits and paced at the selected baud rate."
+      response: "Keyboard and GIN input are written to the child PTY; GIN coordinates are encoded as four packed bytes followed by CR."
+      error: "PTY creation, descriptor duplication, and stream-opening failures print an error and terminate with status 1."
+      auth: ""
+    target_contract:
+      method: "C++26 PTY session preserving the existing byte-stream behavior"
+      notes: "Keep terminal byte ordering, 7-bit input handling, baud pacing, and GIN response encoding unchanged."
+    semantic_divergence:
+      - field: "terminal byte"
+        issue: "Plain char signedness is implementation-defined; explicitly preserve the existing 0..127 input normalization and 8-bit output writes."
+        source_loc: src/tube.c:288
