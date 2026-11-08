@@ -1,0 +1,16 @@
+= Kaitai Struct formats
+
+https://kaitai.io/
+
+The Tektronix 4010/4014 PLT byte-stream description is in
+link:formats/plt/tek_plt.ksy[tek_plt.ksy].
+
+== Tektronix graphics terminals
+
+https://www.bitsavers.org/pdf/tektronix/
+
+https://www.bitsavers.org/pdf/tektronix/401x/
+
+http://www.bitsavers.org/pdf/tektronix/401x/070-1225-00_4010um_Jul81.pdf
+
+http://www.bitsavers.org/pdf/tektronix/401x/070-1647-00_4014_UsersMan_Nov79.pdf

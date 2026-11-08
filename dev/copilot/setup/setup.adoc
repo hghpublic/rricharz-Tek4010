@@ -1,0 +1,166 @@
+= Reusable Project Setup
+:toc:
+:toclevels: 3
+
+== Purpose
+
+Use this guide to reproduce a project's *language-independent development and documentation workflow*. It describes repository organization, persistent project context, requirements and design documentation, reviewer agents, incremental work, and reporting.
+
+This guide does not prescribe a programming language, framework, product, domain model, build system, or test runner. The new project's user must supply product details and choose its technology stack. Read the matching language/framework companion guide under `dev/copilot/setup/`, when one exists, for stack-specific setup.
+
+When asked to set up a new project analogously to this one:
+
+. Read this language-neutral guide.
+. Read the companion guide for the requested language/framework, if one is available.
+. Recreate the reusable workflow without copying another project's product requirements, design decisions, or domain-specific files.
+. Derive project-specific content only from the user's request; ask for significant missing product decisions instead of inventing them.
+
+== Reusable repository layout
+
+[source,text]
+----
+.github/
+  copilot-instructions.md
+  agents/
+    code-quality-reviewer.agent.md
+    test-quality-reviewer.agent.md
+dev/
+  copilot/
+    chats/
+      <project-slug>/
+        <project-slug>-handoff.md
+        session-history/
+          session-history-YYYYMMDD.md
+    setup/
+      setup.adoc
+      setup-<language>.adoc
+dev/docs/
+  design-decisions.typ
+  requirements.adoc
+  reviews/
+    <target>/
+      YYYYMMDD/
+        YYYYMMDD-<scope>-code-review.typ
+        YYYYMMDD-<scope>-test-review.typ
+    shared/
+      YYYYMMDD/
+        YYYYMMDD-<scope>-code-review.typ
+        YYYYMMDD-<scope>-test-review.typ
+<language-specific source and configuration>
+<language-specific lockfile, when applicable>
+<project README>
+----
+
+In this project, `dev/copilot/` is the Copilot directory root. Keep the handoff and session history below `dev/copilot/chats/<project-slug>/`, and setup guides in `dev/copilot/setup/`. Keep requirements, design documentation, and review reports in `dev/docs/`. All repository paths in this guide are relative to the workspace root, not to this nested guide. The links back to the workspace root are link:../../../README.md[README.md] and link:../../../.github/copilot-instructions.md[Copilot instructions].
+
+Use `dev/docs/reviews/<target>/YYYYMMDD/` for a review of one target and `dev/docs/reviews/shared/YYYYMMDD/` when multiple targets are materially in scope. Test-quality reviewers have no shell access; the caller runs relevant validation before delegation and compiles their report after it is written, as described below.
+
+== Project documents
+
+=== README
+
+Create a README in the repository's chosen format. State the project name and only a user-provided or confirmed description. Link to the project's requirements, design register, and setup guides. Document the actual commands used to run, build, format, test, and lint the project; omit commands that do not apply.
+
+=== Requirements
+
+Create `dev/docs/requirements.adoc` from the new project's request. Include purpose and scope, assumptions, prioritized user scenarios, independently testable acceptance criteria, uniquely identified and testable requirements, engineering constraints, an incremental delivery outline, and verifiable completion criteria.
+
+Do not copy requirements or product assumptions from another project. Update this document when scope, assumptions, priorities, acceptance criteria, or demonstrated behavior changes.
+
+=== Design register
+
+Create `dev/docs/design-decisions.typ` as a Typst document. Use it to index design-related project documents and record decisions with:
+
+* A stable decision identifier and title.
+* Status (for example, proposed, accepted, superseded).
+* The decision and its rationale.
+* Evidence or links to relevant source documents.
+* A condition for revisiting the decision.
+
+Add design documents to the index. Update decision status when choices change; keep superseded decisions when their history explains the current design. Do not use the register as a copy of the complete requirements.
+
+=== Handoff and daily chat history
+
+Create `dev/copilot/chats/<project-slug>/<project-slug>-handoff.md` with current project status, decisions, blockers, and the next useful action. Create `dev/copilot/chats/<project-slug>/session-history/session-history-YYYYMMDD.md` for each date with chats. Append concise, factual chat summaries to that date's file; use the local current date and digits-only `YYYYMMDD` in its filename. Do not record secrets or unrelated personal information.
+
+At chat start, read the project handoff, requirements, and the current date's history if present. At chat end, update the handoff and append the current chat's summary. If a new daily file is needed, create it.
+
+== Workspace instructions and reviewer agents
+
+=== Workspace instructions
+
+Create `.github/copilot-instructions.md` to instruct agents to:
+
+. Read the handoff, requirements, and current day's session history at the beginning of a chat.
+. Maintain the handoff and daily history at the end of the chat.
+. Update requirements when product scope or acceptance criteria change.
+. Work in small, verifiable increments and follow project-specific code and test conventions.
+. Invoke the code-quality reviewer after each implementation increment.
+. Invoke the test-quality reviewer whenever tests change and at each implementation milestone.
+. Address review findings or record a concise rationale for any deferred finding.
+. Maintain the Typst design register when design decisions or design documents change.
+
+Use concrete paths for the new project's actual handoff and requirements. Do not retain another project's paths, product requirements, or implementation instructions.
+
+=== Code-quality reviewer
+
+Create `.github/agents/code-quality-reviewer.agent.md` with a focused, language-appropriate code reviewer role. Configure it to:
+
+* Review only the requested change for maintainability, modularity, cohesion, state/data flow, readability, error handling, and unnecessary complexity, using the chosen language's established best practices.
+* Check design comments and applicable requirements.
+* Run existing relevant format, lint, build, or test commands; do not install dependencies or change application code.
+* Write *only a new* review report under `dev/docs/reviews/YYYYMMDD/` (or `dev/docs/reviews/<target>/YYYYMMDD/` when reports are split by target) as a standalone Typst source. Do not modify application code, requirements, existing documentation, or prior reports.
+* Use the name `YYYYMMDD-<scope>-code-review.typ`; the directory date and filename date must match. Add a numeric suffix rather than overwrite an existing report.
+* Include scope, requirements considered, outcome, findings (or an explicit no-findings statement), evidence, validation results, and remaining risks. Findings include severity, file and line, evidence, impact, and a suggested fix.
+* Compile the report with `typst compile` when available. Keep generated PDFs outside the repository unless requested.
+
+=== Test-quality reviewer
+
+Create `.github/agents/test-quality-reviewer.agent.md` with a focused, language-appropriate test reviewer role. Configure it to:
+
+* Assess test purpose, scope, assertion value, boundaries, error paths, regressions, brittleness, and important behavior that is not covered.
+* Check the test-comment convention and map review scope to relevant requirement identifiers.
+* Inspect existing coverage evidence if available, without inventing a numeric coverage threshold or installing tools.
+* Do not run shell commands, builds, tests, formatters, or report compilers. Give the agent only read/search access and permission to create its new report.
+* Write *only a new* standalone Typst report under `dev/docs/reviews/YYYYMMDD/` (or `dev/docs/reviews/<target>/YYYYMMDD/` when reports are split by target) named `YYYYMMDD-<scope>-test-review.typ`; the directory date and filename date must match. Add a numeric suffix instead of overwriting.
+* Include requirements considered, findings (or an explicit no-findings statement), coverage evidence, validation, and remaining risks. Findings include file and line, the weak or missing behavior, why it matters, and an actionable test improvement.
+* If validation results are not supplied, record those checks as not run or unverified; do not request execution permission or wait for approval.
+
+The *caller* is the main assistant or developer orchestrating the review, not the test reviewer. Before delegation, the caller runs the relevant build, test, and formatting checks and includes their results and exact scope in the task. After the reviewer writes its report, the caller compiles it with `typst compile` when available and handles any findings. This separation prevents an unattended reviewer from becoming blocked on an execution-permission request.
+
+Keep both agent descriptions specific enough to identify their review triggers. Give each reviewer only the tool access needed for its assigned role: the test reviewer must not have shell-execution access, while code-reviewer access may include execution when the project workflow requires it.
+
+== Cross-language engineering practices
+
+* Prefer idioms and established best practices of the selected language. Keep components cohesive, boundaries understandable, and abstractions proportional to demonstrated needs.
+* Make implementation changes in small increments that can be built and verified using the new project's actual toolchain.
+* Write comments to explain design intent, important constraints, or why a logical group exists. Avoid comments that merely repeat what the code already says.
+* Keep each test focused on meaningful behavior, with assertions that detect realistic regressions. Document each test's purpose and the risk of an unnoticed failure using the project's language conventions.
+* Assess coverage by the behavior protected, not only by a percentage. Add tests for important behavior and meaningful boundary or error cases as features are implemented.
+* Update requirements when product behavior or accepted assumptions change; update the design register when an engineering decision changes.
+
+Apply language-specific conventions from the matching companion guide and the new project's requirements rather than assuming every language uses the same comment syntax, test structure, or quality tools.
+
+== Validation workflow
+
+Run the smallest relevant checks for each increment using the project's documented tools and commands. Before considering an increment complete:
+
+. Run available format, build/type-check, and focused tests.
+. Run the relevant lint/static analysis.
+. Invoke the required reviewer agent or agents and preserve their Typst reports under the appropriate creation-date subfolder of `dev/docs/reviews/`. For test-quality reviews, run validation before delegation and include the results in the task.
+. Compile every new or changed Typst document with `typst compile` when available. The caller compiles the test reviewer report after it is written; use a temporary output path so PDFs do not become repository artifacts accidentally.
+. Check documentation links, file paths, and whitespace (for Git repositories, `git diff --check`).
+
+Do not install tools or invent commands before inspecting the new project's manifests and available environment. Document unavailable checks and their impact instead of implying they passed.
+
+== New-project recreation checklist
+
+. Read this language-neutral guide and the matching language/framework companion guide, when available.
+. Obtain product details and constraints from the new project's request; do not copy this repository's product decisions.
+. Replace project-name placeholders and recreate the documented directory structure.
+. Create the new project's README, requirements, handoff, daily-history structure, and Typst design register.
+. Create workspace instructions and focused reviewer-agent profiles with paths, language practices, and commands appropriate to the new project.
+. Start with one minimal, verifiable increment and a focused test appropriate to the stack.
+. Run available formatting, build, test, lint, and Typst checks.
+. Keep requirements, design decisions, handoff, daily history, and review reports current as work proceeds.
+. If multiple operating systems are in scope, add a CI matrix that builds and tests on every promised platform.

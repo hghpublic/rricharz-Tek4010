@@ -1,0 +1,7 @@
+= xterm
+
+
+----
+# Opens xterm directly in Tektronix emulation mode and prints the vector instructions
+xterm -t -e cat dodekagon.plt
+----
