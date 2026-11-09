@@ -16,7 +16,8 @@ cat pltfiles/00README.txt
 
 wait1s
 
-cat dodekagon.plt
+# cat dodekagon.plt
+cat test.plt
 
 wait1s
 
